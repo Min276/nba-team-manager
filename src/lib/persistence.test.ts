@@ -25,7 +25,9 @@ describe("persistence", () => {
     const store = makeStore();
     persistStore(store);
     store.dispatch(loggedIn("Min"));
-    store.dispatch(teamAdded({ name: "Dragons", playerCount: 5, region: "Asia", country: "Myanmar" }));
+    store.dispatch(
+      teamAdded({ name: "Dragons", playerCount: 5, region: "Asia", country: "Myanmar" }),
+    );
 
     const written = JSON.parse(storage.get(STORAGE_KEY)!);
     expect(Object.keys(written).sort()).toEqual(["auth", "teams"]);

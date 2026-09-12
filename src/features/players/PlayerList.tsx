@@ -25,11 +25,18 @@ export function PlayerList() {
   const players = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
   const teamByPlayerId = useAppSelector(selectTeamByPlayerId);
   const [assigning, setAssigning] = useState<Player | null>(null);
-  const sentinelRef = useInfiniteScroll(fetchNextPage, hasNextPage && !isFetchingNextPage && !isError);
+  const sentinelRef = useInfiniteScroll(
+    fetchNextPage,
+    hasNextPage && !isFetchingNextPage && !isError,
+  );
 
   if (isLoading) {
     return (
-      <ul role="status" aria-label="Loading players" className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white">
+      <ul
+        role="status"
+        aria-label="Loading players"
+        className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white"
+      >
         {Array.from({ length: 6 }, (_, i) => (
           <li key={i} className="flex animate-pulse items-center gap-4 px-4 py-3">
             <span className="size-10 rounded-full bg-gray-200" />
@@ -76,7 +83,11 @@ export function PlayerList() {
         {hasNextPage ? (
           <>
             <div ref={sentinelRef} aria-hidden className="h-px w-full" />
-            <Button variant="secondary" disabled={isFetchingNextPage} onClick={() => fetchNextPage()}>
+            <Button
+              variant="secondary"
+              disabled={isFetchingNextPage}
+              onClick={() => fetchNextPage()}
+            >
               {isFetchingNextPage ? "Loading…" : isError ? "Retry" : "Load more"}
             </Button>
           </>

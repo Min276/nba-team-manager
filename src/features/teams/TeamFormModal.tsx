@@ -32,8 +32,7 @@ export function TeamFormModal({ team, onClose }: TeamFormModalProps) {
   const [errors, setErrors] = useState<TeamFormErrors>({});
 
   const update =
-    (field: keyof TeamFormValues) =>
-    (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    (field: keyof TeamFormValues) => (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       const { value } = event.target;
       setValues((prev) => ({ ...prev, [field]: value }));
       setErrors((prev) => ({ ...prev, [field]: undefined }));

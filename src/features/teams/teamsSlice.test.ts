@@ -35,9 +35,14 @@ function setup() {
 describe("teams slice", () => {
   it("creates, updates and removes teams", () => {
     const { store, dragonsTeam } = setup();
-    expect(selectAllTeams(store.getState()).map((team) => team.name)).toEqual(["Dragons", "Tigers"]);
+    expect(selectAllTeams(store.getState()).map((team) => team.name)).toEqual([
+      "Dragons",
+      "Tigers",
+    ]);
 
-    store.dispatch(teamUpdated({ id: dragonsTeam.id, changes: { ...dragons, name: "Dragons FC" } }));
+    store.dispatch(
+      teamUpdated({ id: dragonsTeam.id, changes: { ...dragons, name: "Dragons FC" } }),
+    );
     expect(selectAllTeams(store.getState())[0]).toMatchObject({ name: "Dragons FC", players: [] });
 
     store.dispatch(teamRemoved(dragonsTeam.id));
@@ -57,7 +62,8 @@ describe("teams slice", () => {
 
   it("never exceeds the team's player count", () => {
     const { store, dragonsTeam } = setup();
-    for (const id of [1, 2, 3]) store.dispatch(playerAdded({ teamId: dragonsTeam.id, player: player(id) }));
+    for (const id of [1, 2, 3])
+      store.dispatch(playerAdded({ teamId: dragonsTeam.id, player: player(id) }));
     expect(selectAllTeams(store.getState())[0].players.map((p) => p.id)).toEqual([1, 2]);
   });
 

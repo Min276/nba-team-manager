@@ -13,7 +13,12 @@ export interface TeamFormValues {
 
 export type TeamFormErrors = Partial<Record<keyof TeamFormValues, string>>;
 
-export const emptyTeamForm: TeamFormValues = { name: "", playerCount: "5", region: "", country: "" };
+export const emptyTeamForm: TeamFormValues = {
+  name: "",
+  playerCount: "5",
+  region: "",
+  country: "",
+};
 
 export const toFormValues = (team: Team): TeamFormValues => ({
   name: team.name,
@@ -43,7 +48,8 @@ export function validateTeamForm(
     (team) => team.id !== editing?.id && team.name.toLowerCase() === name.toLowerCase(),
   );
   if (!name) errors.name = "Team name is required.";
-  else if (name.length > NAME_MAX) errors.name = `Team name must be at most ${NAME_MAX} characters.`;
+  else if (name.length > NAME_MAX)
+    errors.name = `Team name must be at most ${NAME_MAX} characters.`;
   else if (taken) errors.name = `A team named “${name}” already exists.`;
 
   const playerCount = Number(values.playerCount);

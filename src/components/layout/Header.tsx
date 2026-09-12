@@ -19,7 +19,10 @@ export function Header() {
   return (
     <header className="sticky top-0 z-10 border-b border-gray-200 bg-white/90 backdrop-blur">
       <div className="mx-auto flex min-h-14 max-w-4xl flex-wrap items-center gap-x-6 gap-y-1 px-4 py-2">
-        <Link href="/" className="shrink-0 font-semibold tracking-tight whitespace-nowrap text-gray-900">
+        <Link
+          href="/"
+          className="shrink-0 font-semibold tracking-tight whitespace-nowrap text-gray-900"
+        >
           🏀 NBA Team Manager
         </Link>
         {user && (

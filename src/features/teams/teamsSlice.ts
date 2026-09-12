@@ -77,8 +77,9 @@ export const { teamAdded, teamUpdated, teamRemoved, playerAdded, playerRemoved }
   teamsSlice.actions;
 export const teamsReducer = teamsSlice.reducer;
 
-export const { selectAll: selectAllTeams, selectById: selectTeamById } =
-  teamsAdapter.getSelectors((state: RootState) => state.teams);
+export const { selectAll: selectAllTeams, selectById: selectTeamById } = teamsAdapter.getSelectors(
+  (state: RootState) => state.teams,
+);
 
 export const selectTeamByPlayerId = createSelector([selectAllTeams], (teams) => {
   const byPlayer = new Map<number, Team>();

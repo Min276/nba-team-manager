@@ -30,7 +30,7 @@ Scripts: `pnpm dev`, `pnpm build`, `pnpm start`, `pnpm lint`, `pnpm typecheck`, 
 - **Authentication** - username-only login (no API), name shown in the header, log out.
   Routes under `(protected)` redirect to `/login` when signed out.
 - **Players** - 10 players per request, infinite scroll via `IntersectionObserver`
-  with a *Load more* button as a fallback, skeleton while loading, error states
+  with a _Load more_ button as a fallback, skeleton while loading, error states
   with retry for both the first page and subsequent pages.
 - **Teams** - listing, create, update and delete, all in modals. Form fields:
   name (required, unique regardless of case), player count (1-30, and never below
