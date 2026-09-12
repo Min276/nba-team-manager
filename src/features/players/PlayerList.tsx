@@ -59,6 +59,10 @@ export function PlayerList() {
     );
   }
 
+  if (players.length === 0) {
+    return <p className="py-10 text-center text-sm text-gray-500">No players found.</p>;
+  }
+
   return (
     <>
       <ul className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white">
