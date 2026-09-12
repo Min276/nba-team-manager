@@ -23,10 +23,20 @@ export const TeamCard = memo(function TeamCard({ team, onEdit, onDelete }: TeamC
           </p>
         </div>
         <div className="flex shrink-0 gap-2">
-          <Button variant="secondary" size="sm" onClick={() => onEdit(team)}>
+          <Button
+            variant="secondary"
+            size="sm"
+            aria-label={`Edit ${team.name}`}
+            onClick={() => onEdit(team)}
+          >
             Edit
           </Button>
-          <Button variant="danger" size="sm" onClick={() => onDelete(team)}>
+          <Button
+            variant="danger"
+            size="sm"
+            aria-label={`Delete ${team.name}`}
+            onClick={() => onDelete(team)}
+          >
             Delete
           </Button>
         </div>

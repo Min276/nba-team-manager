@@ -51,7 +51,12 @@ export const PlayerRow = memo(function PlayerRow({ player, team, onAssign }: Pla
           </Button>
         </>
       ) : (
-        <Button variant="secondary" size="sm" onClick={() => onAssign(player)}>
+        <Button
+          variant="secondary"
+          size="sm"
+          aria-label={`Add ${player.firstName} ${player.lastName} to a team`}
+          onClick={() => onAssign(player)}
+        >
           Add to team
         </Button>
       )}
