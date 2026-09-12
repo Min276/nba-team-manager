@@ -12,14 +12,20 @@ interface ModalProps {
 // focus trapping, Esc handling and the backdrop for free.
 export function Modal({ title, onClose, children }: ModalProps) {
   const ref = useRef<HTMLDialogElement>(null);
+  const pressedOnBackdrop = useRef(false);
   const titleId = useId();
 
   useEffect(() => {
-    ref.current?.showModal();
+    if (!ref.current?.open) ref.current?.showModal();
   }, []);
 
-  const onBackdropClick = (event: MouseEvent<HTMLDialogElement>) => {
-    if (event.target === event.currentTarget) onClose();
+  // Only a click that both started and ended on the backdrop closes the modal,
+  // so a text selection dragged outside the panel doesn't discard the form.
+  const onMouseDown = (event: MouseEvent<HTMLDialogElement>) => {
+    pressedOnBackdrop.current = event.target === event.currentTarget;
+  };
+  const onClick = (event: MouseEvent<HTMLDialogElement>) => {
+    if (pressedOnBackdrop.current && event.target === event.currentTarget) onClose();
   };
 
   return (
@@ -27,7 +33,8 @@ export function Modal({ title, onClose, children }: ModalProps) {
       ref={ref}
       aria-labelledby={titleId}
       onClose={onClose}
-      onClick={onBackdropClick}
+      onMouseDown={onMouseDown}
+      onClick={onClick}
       className="m-auto w-[calc(100%-2rem)] max-w-md rounded-xl bg-white p-0 text-gray-900 shadow-xl backdrop:bg-gray-900/50"
     >
       <div className="p-6">
