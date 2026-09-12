@@ -1,4 +1,10 @@
-import { createEntityAdapter, createSlice, nanoid, type PayloadAction } from "@reduxjs/toolkit";
+import {
+  createEntityAdapter,
+  createSelector,
+  createSlice,
+  nanoid,
+  type PayloadAction,
+} from "@reduxjs/toolkit";
 import type { Player } from "@/features/players/types";
 import { hydrate } from "@/lib/persistence";
 import type { RootState } from "@/lib/store";
@@ -49,14 +55,33 @@ const teamsSlice = createSlice({
       teamsAdapter.updateOne(state, payload);
     },
     teamRemoved: teamsAdapter.removeOne,
+    playerAdded(state, { payload }: PayloadAction<{ teamId: string; player: Player }>) {
+      const team = state.entities[payload.teamId];
+      const taken = state.ids.some((id) =>
+        state.entities[id].players.some((player) => player.id === payload.player.id),
+      );
+      if (!team || taken || team.players.length >= team.playerCount) return;
+      team.players.push(payload.player);
+    },
+    playerRemoved(state, { payload }: PayloadAction<{ teamId: string; playerId: number }>) {
+      const team = state.entities[payload.teamId];
+      if (team) team.players = team.players.filter((player) => player.id !== payload.playerId);
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(hydrate, (state, { payload }) => payload.teams ?? state);
   },
 });
 
-export const { teamAdded, teamUpdated, teamRemoved } = teamsSlice.actions;
+export const { teamAdded, teamUpdated, teamRemoved, playerAdded, playerRemoved } =
+  teamsSlice.actions;
 export const teamsReducer = teamsSlice.reducer;
 
 export const { selectAll: selectAllTeams, selectById: selectTeamById } =
   teamsAdapter.getSelectors((state: RootState) => state.teams);
+
+export const selectTeamByPlayerId = createSelector([selectAllTeams], (teams) => {
+  const byPlayer = new Map<number, Team>();
+  for (const team of teams) for (const player of team.players) byPlayer.set(player.id, team);
+  return byPlayer;
+});

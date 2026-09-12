@@ -1,9 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { selectTeamByPlayerId } from "@/features/teams/teamsSlice";
+import { useAppSelector } from "@/lib/hooks";
+import { AssignPlayerModal } from "./AssignPlayerModal";
 import { PlayerRow } from "./PlayerRow";
 import { describeError, useGetPlayersInfiniteQuery } from "./playersApi";
+import type { Player } from "./types";
 import { useInfiniteScroll } from "./useInfiniteScroll";
 
 export function PlayerList() {
@@ -19,6 +23,8 @@ export function PlayerList() {
   } = useGetPlayersInfiniteQuery();
 
   const players = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
+  const teamByPlayerId = useAppSelector(selectTeamByPlayerId);
+  const [assigning, setAssigning] = useState<Player | null>(null);
   const sentinelRef = useInfiniteScroll(fetchNextPage, hasNextPage && !isFetchingNextPage && !isError);
 
   if (isLoading) {
@@ -50,9 +56,16 @@ export function PlayerList() {
     <>
       <ul className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white">
         {players.map((player) => (
-          <PlayerRow key={player.id} player={player} />
+          <PlayerRow
+            key={player.id}
+            player={player}
+            team={teamByPlayerId.get(player.id)}
+            onAssign={setAssigning}
+          />
         ))}
       </ul>
+
+      {assigning && <AssignPlayerModal player={assigning} onClose={() => setAssigning(null)} />}
 
       <div className="flex flex-col items-center gap-2 py-6 text-sm text-gray-500">
         {isError && (
