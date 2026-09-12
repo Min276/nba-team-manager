@@ -38,7 +38,7 @@ export const PlayerRow = memo(function PlayerRow({ player, team, onAssign }: Pla
       </div>
       {team ? (
         <>
-          <span className="hidden max-w-40 truncate rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700 sm:inline">
+          <span className="max-w-24 truncate rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700 sm:max-w-40">
             {team.name}
           </span>
           <Button

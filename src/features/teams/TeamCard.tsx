@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { memo } from "react";
 import { Button } from "@/components/ui/Button";
 import { useAppDispatch } from "@/lib/hooks";
@@ -36,7 +37,15 @@ export const TeamCard = memo(function TeamCard({ team, onEdit, onDelete }: TeamC
           {team.players.length} / {team.playerCount}
         </span>
       </p>
-      {team.players.length > 0 && (
+      {team.players.length === 0 ? (
+        <p className="mt-2 text-sm text-gray-500">
+          No players yet —{" "}
+          <Link href="/players" className="font-medium text-indigo-600 hover:underline">
+            add some from the Players page
+          </Link>
+          .
+        </p>
+      ) : (
         <ul className="mt-2 divide-y divide-gray-100 rounded-lg border border-gray-100">
           {team.players.map((player) => (
             <li key={player.id} className="flex items-center gap-3 px-3 py-2 text-sm">
