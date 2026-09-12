@@ -9,8 +9,8 @@ interface UpstreamPlayer {
   id: number;
   first_name: string;
   last_name: string;
-  position: string;
-  team: { full_name: string };
+  position: string | null;
+  team: { full_name: string } | null;
 }
 
 interface UpstreamResponse {
@@ -22,8 +22,8 @@ const toPlayer = (player: UpstreamPlayer): Player => ({
   id: player.id,
   firstName: player.first_name,
   lastName: player.last_name,
-  position: player.position,
-  nbaTeam: player.team.full_name,
+  position: player.position ?? "",
+  nbaTeam: player.team?.full_name ?? "Free agent",
 });
 
 const fail = (message: string, status: number) => NextResponse.json({ message }, { status });
@@ -55,6 +55,7 @@ export async function GET(request: NextRequest) {
   if (!upstream.ok) return fail(`The players API responded with ${upstream.status}.`, 502);
 
   const { data, meta }: UpstreamResponse = await upstream.json();
+  if (!Array.isArray(data)) return fail("Unexpected response from the players API.", 502);
   const page: PlayersPage = { data: data.map(toPlayer), nextCursor: meta.next_cursor ?? null };
   return NextResponse.json(page);
 }
