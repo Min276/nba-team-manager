@@ -2,7 +2,7 @@ import { createAction, createReducer, type Reducer } from "@reduxjs/toolkit";
 import type { AppStore, RootState } from "./store";
 
 // ponytail: bump the version when a persisted slice changes shape; old data is simply ignored.
-const STORAGE_KEY = "nba-team-manager:v1";
+export const STORAGE_KEY = "nba-team-manager:v1";
 const PERSISTED_KEYS = ["auth", "teams"] as const satisfies readonly (keyof RootState)[];
 
 export type PersistedState = Pick<RootState, (typeof PERSISTED_KEYS)[number]>;
