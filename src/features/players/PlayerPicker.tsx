@@ -2,8 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { SearchInput } from "@/components/ui/SearchInput";
 import { selectTeamByPlayerId } from "@/features/teams/teamsSlice";
 import { useAppSelector } from "@/lib/hooks";
+import { useDebouncedValue } from "@/lib/useDebouncedValue";
 import { describeError, useGetPlayersInfiniteQuery } from "./playersApi";
 import type { Player } from "./types";
 
@@ -19,16 +21,13 @@ const fullName = (player: Player) => `${player.firstName} ${player.lastName}`;
 // Lets a team form pick its roster from the same player cache the Players page
 // uses; players on other teams and seats beyond the capacity are disabled.
 export function PlayerPicker({ selected, onChange, capacity, teamId }: PlayerPickerProps) {
+  const [search, setSearch] = useState("");
+  const query = useDebouncedValue(search.trim());
   const { data, error, isLoading, isError, hasNextPage, isFetchingNextPage, fetchNextPage } =
-    useGetPlayersInfiniteQuery();
+    useGetPlayersInfiniteQuery(query);
   const teamByPlayerId = useAppSelector(selectTeamByPlayerId);
-  const [filter, setFilter] = useState("");
 
-  const players = useMemo(() => {
-    const all = data?.pages.flatMap((page) => page.data) ?? [];
-    const query = filter.trim().toLowerCase();
-    return query ? all.filter((player) => fullName(player).toLowerCase().includes(query)) : all;
-  }, [data, filter]);
+  const players = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
   const selectedIds = useMemo(() => new Set(selected.map((player) => player.id)), [selected]);
   const full = selected.length >= capacity;
 
@@ -66,13 +65,12 @@ export function PlayerPicker({ selected, onChange, capacity, teamId }: PlayerPic
         </ul>
       )}
 
-      <input
-        type="search"
-        aria-label="Filter loaded players"
-        placeholder="Filter loaded players…"
-        value={filter}
-        onChange={(event) => setFilter(event.target.value)}
-        className="mb-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+      <SearchInput
+        aria-label="Search players"
+        placeholder="Search players by name…"
+        value={search}
+        onChange={(event) => setSearch(event.target.value)}
+        className="mb-2"
       />
 
       <div className="max-h-52 overflow-y-auto rounded-md border border-gray-300">
@@ -85,7 +83,9 @@ export function PlayerPicker({ selected, onChange, capacity, teamId }: PlayerPic
             {describeError(error)}
           </p>
         ) : players.length === 0 ? (
-          <p className="p-3 text-sm text-gray-500">No players match.</p>
+          <p className="p-3 text-sm text-gray-500">
+            {query ? `No players match “${query}”.` : "No players found."}
+          </p>
         ) : (
           <ul className="divide-y divide-gray-100">
             {players.map((player) => {

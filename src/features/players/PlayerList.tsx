@@ -2,8 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { SearchInput } from "@/components/ui/SearchInput";
 import { selectTeamByPlayerId } from "@/features/teams/teamsSlice";
 import { useAppSelector } from "@/lib/hooks";
+import { useDebouncedValue } from "@/lib/useDebouncedValue";
 import { AssignPlayerModal } from "./AssignPlayerModal";
 import { PlayerRow } from "./PlayerRow";
 import { describeError, useGetPlayersInfiniteQuery } from "./playersApi";
@@ -11,6 +13,8 @@ import type { Player } from "./types";
 import { useInfiniteScroll } from "./useInfiniteScroll";
 
 export function PlayerList() {
+  const [search, setSearch] = useState("");
+  const query = useDebouncedValue(search.trim());
   const {
     data,
     error,
@@ -20,7 +24,7 @@ export function PlayerList() {
     isFetchingNextPage,
     fetchNextPage,
     refetch,
-  } = useGetPlayersInfiniteQuery();
+  } = useGetPlayersInfiniteQuery(query);
 
   const players = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
   const teamByPlayerId = useAppSelector(selectTeamByPlayerId);
@@ -30,8 +34,9 @@ export function PlayerList() {
     hasNextPage && !isFetchingNextPage && !isError,
   );
 
+  let content;
   if (isLoading) {
-    return (
+    content = (
       <ul
         role="status"
         aria-label="Loading players"
@@ -45,10 +50,8 @@ export function PlayerList() {
         ))}
       </ul>
     );
-  }
-
-  if (isError && players.length === 0) {
-    return (
+  } else if (isError && players.length === 0) {
+    content = (
       <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-6 text-center">
         <p className="font-medium text-red-800">Couldn&apos;t load players</p>
         <p className="mt-1 text-sm text-red-700">{describeError(error)}</p>
@@ -57,48 +60,62 @@ export function PlayerList() {
         </Button>
       </div>
     );
-  }
+  } else if (players.length === 0) {
+    content = (
+      <p className="py-10 text-center text-sm text-gray-500">
+        {query ? `No players match “${query}”.` : "No players found."}
+      </p>
+    );
+  } else {
+    content = (
+      <>
+        <ul className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white">
+          {players.map((player) => (
+            <PlayerRow
+              key={player.id}
+              player={player}
+              team={teamByPlayerId.get(player.id)}
+              onAssign={setAssigning}
+            />
+          ))}
+        </ul>
 
-  if (players.length === 0) {
-    return <p className="py-10 text-center text-sm text-gray-500">No players found.</p>;
+        <div className="flex flex-col items-center gap-2 py-6 text-sm text-gray-500">
+          {isError && (
+            <p role="alert" className="text-red-700">
+              {describeError(error)}
+            </p>
+          )}
+          {hasNextPage ? (
+            <>
+              <div ref={sentinelRef} aria-hidden className="h-px w-full" />
+              <Button
+                variant="secondary"
+                disabled={isFetchingNextPage}
+                onClick={() => fetchNextPage()}
+              >
+                {isFetchingNextPage ? "Loading…" : isError ? "Retry" : "Load more"}
+              </Button>
+            </>
+          ) : (
+            <p>You&apos;ve reached the end of the list.</p>
+          )}
+        </div>
+      </>
+    );
   }
 
   return (
     <>
-      <ul className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white">
-        {players.map((player) => (
-          <PlayerRow
-            key={player.id}
-            player={player}
-            team={teamByPlayerId.get(player.id)}
-            onAssign={setAssigning}
-          />
-        ))}
-      </ul>
-
+      <SearchInput
+        aria-label="Search players"
+        placeholder="Search players by name…"
+        value={search}
+        onChange={(event) => setSearch(event.target.value)}
+        className="mb-4"
+      />
+      {content}
       {assigning && <AssignPlayerModal player={assigning} onClose={() => setAssigning(null)} />}
-
-      <div className="flex flex-col items-center gap-2 py-6 text-sm text-gray-500">
-        {isError && (
-          <p role="alert" className="text-red-700">
-            {describeError(error)}
-          </p>
-        )}
-        {hasNextPage ? (
-          <>
-            <div ref={sentinelRef} aria-hidden className="h-px w-full" />
-            <Button
-              variant="secondary"
-              disabled={isFetchingNextPage}
-              onClick={() => fetchNextPage()}
-            >
-              {isFetchingNextPage ? "Loading…" : isError ? "Retry" : "Load more"}
-            </Button>
-          </>
-        ) : (
-          <p>You&apos;ve reached the end of the list.</p>
-        )}
-      </div>
     </>
   );
 }
