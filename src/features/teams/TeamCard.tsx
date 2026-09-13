@@ -2,8 +2,8 @@ import Link from "next/link";
 import { memo } from "react";
 import { Button } from "@/components/ui/Button";
 import type { TeamsView } from "@/features/preferences/preferencesSlice";
-import { useAppDispatch } from "@/lib/hooks";
-import { playerRemoved, type Team } from "./teamsSlice";
+import type { Team } from "./teamsSlice";
+import { useRemovePlayer } from "./useRemovePlayer";
 
 interface TeamCardProps {
   team: Team;
@@ -40,7 +40,7 @@ function RosterFill({ team }: { team: Team }) {
 }
 
 function Roster({ team }: { team: Team }) {
-  const dispatch = useAppDispatch();
+  const removePlayer = useRemovePlayer();
 
   if (team.players.length === 0) {
     return (
@@ -68,7 +68,7 @@ function Roster({ team }: { team: Team }) {
             variant="ghost"
             size="sm"
             aria-label={`Remove ${player.firstName} ${player.lastName} from ${team.name}`}
-            onClick={() => dispatch(playerRemoved({ teamId: team.id, playerId: player.id }))}
+            onClick={() => removePlayer(team, player)}
           >
             Remove
           </Button>

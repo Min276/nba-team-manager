@@ -21,7 +21,9 @@ const fullName = (player: Player) => `${player.firstName} ${player.lastName}`;
 startListening({
   actionCreator: teamAdded,
   effect: ({ payload }, api) => {
-    api.dispatch(toastShown(`Team “${payload.name}” created.`));
+    if (api.getState().teams.entities[payload.id]) {
+      api.dispatch(toastShown(`Team “${payload.name}” created.`));
+    }
   },
 });
 
@@ -65,6 +67,10 @@ startListening({
   effect: ({ payload }, api) => {
     const team = api.getOriginalState().teams.entities[payload.teamId];
     const player = team?.players.find((p) => p.id === payload.playerId);
-    if (team && player) api.dispatch(toastShown(`${fullName(player)} removed from ${team.name}.`));
+    const applied =
+      api.getState().teams.entities[payload.teamId]?.players.length !== team?.players.length;
+    if (team && player && applied) {
+      api.dispatch(toastShown(`${fullName(player)} removed from ${team.name}.`));
+    }
   },
 });

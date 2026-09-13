@@ -14,17 +14,25 @@ interface PlayerPickerProps {
   onChange: (players: Player[]) => void;
   capacity: number;
   teamId?: string;
+  error?: string;
 }
 
 const fullName = (player: Player) => `${player.firstName} ${player.lastName}`;
 
 // Lets a team form pick its roster from the same player cache the Players page
 // uses; players on other teams and seats beyond the capacity are disabled.
-export function PlayerPicker({ selected, onChange, capacity, teamId }: PlayerPickerProps) {
+export function PlayerPicker({ selected, onChange, capacity, teamId, error }: PlayerPickerProps) {
   const [search, setSearch] = useState("");
   const query = useDebouncedValue(search.trim());
-  const { data, error, isLoading, isError, hasNextPage, isFetchingNextPage, fetchNextPage } =
-    useGetPlayersInfiniteQuery(query);
+  const {
+    data,
+    error: queryError,
+    isLoading,
+    isError,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useGetPlayersInfiniteQuery(query);
   const teamByPlayerId = useAppSelector(selectTeamByPlayerId);
 
   const players = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
@@ -39,7 +47,7 @@ export function PlayerPicker({ selected, onChange, capacity, teamId }: PlayerPic
     );
 
   return (
-    <fieldset>
+    <fieldset aria-describedby={error ? "team-players-error" : undefined}>
       <legend className="mb-1 text-sm font-medium text-gray-700">
         Players{" "}
         <span className="font-normal text-gray-500">
@@ -73,14 +81,16 @@ export function PlayerPicker({ selected, onChange, capacity, teamId }: PlayerPic
         className="mb-2"
       />
 
-      <div className="max-h-52 overflow-y-auto rounded-md border border-gray-300">
+      <div
+        className={`max-h-52 overflow-y-auto rounded-md border ${error ? "border-red-500" : "border-gray-300"}`}
+      >
         {isLoading ? (
           <p role="status" className="p-3 text-sm text-gray-500">
             Loading players…
           </p>
         ) : isError && players.length === 0 ? (
           <p role="alert" className="p-3 text-sm text-red-700">
-            {describeError(error)}
+            {describeError(queryError)}
           </p>
         ) : players.length === 0 ? (
           <p className="p-3 text-sm text-gray-500">
@@ -125,7 +135,7 @@ export function PlayerPicker({ selected, onChange, capacity, teamId }: PlayerPic
         )}
         {isError && players.length > 0 && (
           <p role="alert" className="border-t border-gray-100 p-2 text-center text-xs text-red-700">
-            {describeError(error)}
+            {describeError(queryError)}
           </p>
         )}
         {hasNextPage && (
@@ -141,6 +151,11 @@ export function PlayerPicker({ selected, onChange, capacity, teamId }: PlayerPic
           </div>
         )}
       </div>
+      {error && (
+        <p id="team-players-error" role="alert" className="mt-1 text-sm text-red-600">
+          {error}
+        </p>
+      )}
     </fieldset>
   );
 }

@@ -20,13 +20,24 @@ const existing: Team = {
 };
 
 describe("validateTeamForm", () => {
-  it("accepts a valid form", () => {
-    expect(validateTeamForm(valid, [])).toEqual({});
+  it("accepts a valid form with at least one player picked", () => {
+    expect(validateTeamForm(valid, [], undefined, 1)).toEqual({});
+  });
+
+  it("requires at least one player", () => {
+    expect(validateTeamForm(valid, []).players).toMatch(/at least one player/);
+    expect(validateTeamForm(valid, [], undefined, 0).players).toMatch(/at least one player/);
   });
 
   it("requires every field", () => {
     const errors = validateTeamForm({ name: " ", playerCount: "", region: "", country: " " }, []);
-    expect(Object.keys(errors).sort()).toEqual(["country", "name", "playerCount", "region"]);
+    expect(Object.keys(errors).sort()).toEqual([
+      "country",
+      "name",
+      "playerCount",
+      "players",
+      "region",
+    ]);
   });
 
   it("rejects names already taken, ignoring case and surrounding whitespace", () => {
@@ -36,7 +47,7 @@ describe("validateTeamForm", () => {
   });
 
   it("lets a team keep its own name while editing", () => {
-    expect(validateTeamForm({ ...valid, name: "dragons" }, [existing], existing)).toEqual({});
+    expect(validateTeamForm({ ...valid, name: "dragons" }, [existing], existing, 1)).toEqual({});
   });
 
   it("bounds the player count to whole numbers within range", () => {
@@ -45,7 +56,9 @@ describe("validateTeamForm", () => {
     expect(
       validateTeamForm({ ...valid, playerCount: String(PLAYER_COUNT_MAX + 1) }, []).playerCount,
     ).toBeDefined();
-    expect(validateTeamForm({ ...valid, playerCount: String(PLAYER_COUNT_MAX) }, [])).toEqual({});
+    expect(
+      validateTeamForm({ ...valid, playerCount: String(PLAYER_COUNT_MAX) }, [], undefined, 1),
+    ).toEqual({});
   });
 
   it("does not allow shrinking a team below its current roster", () => {
@@ -72,8 +85,10 @@ describe("validateTeamForm", () => {
 
   it("requires the country to be a name", () => {
     expect(validateTeamForm({ ...valid, country: "99" }, []).country).toMatch(/must be a name/);
-    expect(validateTeamForm({ ...valid, country: "Côte d’Ivoire" }, [])).toEqual({});
-    expect(validateTeamForm({ ...valid, country: "St. Kitts-Nevis" }, [])).toEqual({});
+    expect(validateTeamForm({ ...valid, country: "Côte d’Ivoire" }, [], undefined, 1)).toEqual({});
+    expect(validateTeamForm({ ...valid, country: "St. Kitts-Nevis" }, [], undefined, 1)).toEqual(
+      {},
+    );
   });
 
   it("rejects unknown regions", () => {

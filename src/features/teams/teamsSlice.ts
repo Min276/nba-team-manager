@@ -49,7 +49,7 @@ const playerIdsOnOtherTeams = (state: TeamsState, teamId?: string) => {
 };
 
 // A roster may only hold players that are on no other team, at most once each,
-// and never more than the team's player count.
+// never more than the team's player count, and a team always keeps at least one.
 const admissibleRoster = (
   state: TeamsState,
   players: Player[],
@@ -73,6 +73,7 @@ const teamsSlice = createSlice({
     teamAdded: {
       reducer(state, { payload }: PayloadAction<Team>) {
         const players = admissibleRoster(state, payload.players, payload.playerCount);
+        if (players.length === 0) return;
         teamsAdapter.addOne(state, { ...payload, players });
       },
       prepare: (input: TeamInput, players: Player[] = []) => ({
@@ -88,7 +89,7 @@ const teamsSlice = createSlice({
       const players = payload.players
         ? admissibleRoster(state, payload.players, payload.changes.playerCount, team.id)
         : team.players;
-      if (payload.changes.playerCount < players.length) return;
+      if (players.length === 0 || payload.changes.playerCount < players.length) return;
       teamsAdapter.updateOne(state, { id: payload.id, changes: { ...payload.changes, players } });
     },
     teamRemoved: teamsAdapter.removeOne,
@@ -100,7 +101,8 @@ const teamsSlice = createSlice({
     },
     playerRemoved(state, { payload }: PayloadAction<{ teamId: string; playerId: number }>) {
       const team = state.entities[payload.teamId];
-      if (team) team.players = team.players.filter((player) => player.id !== payload.playerId);
+      if (!team || team.players.length <= 1) return;
+      team.players = team.players.filter((player) => player.id !== payload.playerId);
     },
   },
   extraReducers: (builder) => {

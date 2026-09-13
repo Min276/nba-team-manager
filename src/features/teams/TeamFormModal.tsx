@@ -100,7 +100,11 @@ export function TeamFormModal({ team, onClose }: TeamFormModalProps) {
         />
         <PlayerPicker
           selected={selected}
-          onChange={setSelected}
+          onChange={(players) => {
+            setSelected(players);
+            setErrors((prev) => ({ ...prev, players: undefined }));
+          }}
+          error={errors.players}
           capacity={Number.isInteger(capacity) && capacity > 0 ? capacity : Infinity}
           teamId={team?.id}
         />

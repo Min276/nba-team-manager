@@ -39,9 +39,11 @@ Scripts: `pnpm dev`, `pnpm build`, `pnpm start`, `pnpm lint`, `pnpm typecheck`, 
   errors. The list has a filter, a grid/list toggle and 12-per-page pagination
   kept in the URL.
 - **Rosters** - pick players inside the team form (with search and _Load more_),
-  or add them from the players page; remove from either page. A player can be on
-  at most one team, a team can't exceed its player count, and deleting a team
-  releases its players. Long rosters scroll inside the card.
+  or add them from the players page; remove from either page. A team must have at
+  least one player (creation requires a pick and the last player can't be
+  removed — delete the team instead), a player can be on at most one team, a team
+  can't exceed its player count, and deleting a team releases its players. Long
+  rosters scroll inside the card.
 - **Feedback** - toast confirmations for every team and roster change.
 - **Persistence** - auth, teams and view preferences are stored in `localStorage`
   and restored on load, and open tabs stay in sync; the API cache, toasts and

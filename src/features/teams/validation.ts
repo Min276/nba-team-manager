@@ -11,7 +11,7 @@ export interface TeamFormValues {
   country: string;
 }
 
-export type TeamFormErrors = Partial<Record<keyof TeamFormValues, string>>;
+export type TeamFormErrors = Partial<Record<keyof TeamFormValues | "players", string>>;
 
 export const emptyTeamForm: TeamFormValues = {
   name: "",
@@ -64,6 +64,8 @@ export function validateTeamForm(
   } else if (playerCount < rosterSize) {
     errors.playerCount = `Player count can't be less than the ${rosterSize} players selected.`;
   }
+
+  if (rosterSize < 1) errors.players = "Pick at least one player for the team.";
 
   if (!isRegion(values.region)) errors.region = "Please select a region.";
 
