@@ -3,3 +3,11 @@
 body:has(dialog[open]) {
   overflow: hidden;
 }
+
+@layer base {
+  button:not(:disabled),
+  select:not(:disabled),
+  summary {
+    cursor: pointer;
+  }
+}
