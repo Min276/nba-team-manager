@@ -6,14 +6,14 @@ export const playersApi = createApi({
   reducerPath: "playersApi",
   baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
   endpoints: (build) => ({
-    getPlayers: build.infiniteQuery<PlayersPage, void, number | null>({
+    getPlayers: build.infiniteQuery<PlayersPage, string, number | null>({
       infiniteQueryOptions: {
         initialPageParam: null,
         getNextPageParam: (lastPage) => lastPage.nextCursor,
       },
-      query: ({ pageParam }) => ({
+      query: ({ queryArg: search, pageParam }) => ({
         url: "players",
-        params: pageParam === null ? undefined : { cursor: pageParam },
+        params: { search: search || undefined, cursor: pageParam ?? undefined },
       }),
     }),
   }),

@@ -3,6 +3,7 @@ import type { Player, PlayersPage } from "@/features/players/types";
 
 const UPSTREAM_URL = "https://api.balldontlie.io/v1/players";
 const PAGE_SIZE = 10;
+const SEARCH_MAX = 50;
 const REVALIDATE_SECONDS = 60 * 60;
 
 interface UpstreamPlayer {
@@ -35,9 +36,12 @@ export async function GET(request: NextRequest) {
   const cursor = request.nextUrl.searchParams.get("cursor");
   if (cursor !== null && !/^\d+$/.test(cursor)) return fail("Invalid cursor.", 400);
 
+  const search = request.nextUrl.searchParams.get("search")?.trim().slice(0, SEARCH_MAX);
+
   const url = new URL(UPSTREAM_URL);
   url.searchParams.set("per_page", String(PAGE_SIZE));
   if (cursor) url.searchParams.set("cursor", cursor);
+  if (search) url.searchParams.set("search", search);
 
   let upstream: Response;
   try {

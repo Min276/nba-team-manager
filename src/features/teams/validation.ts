@@ -11,7 +11,7 @@ export interface TeamFormValues {
   country: string;
 }
 
-export type TeamFormErrors = Partial<Record<keyof TeamFormValues, string>>;
+export type TeamFormErrors = Partial<Record<keyof TeamFormValues | "players", string>>;
 
 export const emptyTeamForm: TeamFormValues = {
   name: "",
@@ -36,10 +36,14 @@ export const toTeamInput = (values: TeamFormValues): TeamInput => ({
 
 const isRegion = (value: string): value is Region => (REGIONS as readonly string[]).includes(value);
 
+// Letters (any script) with the spaces and punctuation real country names use.
+const COUNTRY_PATTERN = /^\p{L}[\p{L}\s.'’-]*$/u;
+
 export function validateTeamForm(
   values: TeamFormValues,
   teams: Team[],
   editing?: Team,
+  rosterSize = editing?.players.length ?? 0,
 ): TeamFormErrors {
   const errors: TeamFormErrors = {};
 
@@ -57,9 +61,11 @@ export function validateTeamForm(
     errors.playerCount = "Player count must be a whole number.";
   } else if (playerCount < 1 || playerCount > PLAYER_COUNT_MAX) {
     errors.playerCount = `Player count must be between 1 and ${PLAYER_COUNT_MAX}.`;
-  } else if (editing && playerCount < editing.players.length) {
-    errors.playerCount = `This team already has ${editing.players.length} players.`;
+  } else if (playerCount < rosterSize) {
+    errors.playerCount = `Player count can't be less than the ${rosterSize} players selected.`;
   }
+
+  if (rosterSize < 1) errors.players = "Pick at least one player for the team.";
 
   if (!isRegion(values.region)) errors.region = "Please select a region.";
 
@@ -67,6 +73,8 @@ export function validateTeamForm(
   if (!country) errors.country = "Country is required.";
   else if (country.length > COUNTRY_MAX) {
     errors.country = `Country must be at most ${COUNTRY_MAX} characters.`;
+  } else if (!COUNTRY_PATTERN.test(country)) {
+    errors.country = "Country must be a name, e.g. Spain or Côte d’Ivoire.";
   }
 
   return errors;

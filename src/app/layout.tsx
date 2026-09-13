@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Header } from "@/components/layout/Header";
+import { Toaster } from "@/components/ui/Toaster";
 import { StoreProvider } from "@/lib/StoreProvider";
 import "./globals.css";
 
@@ -15,6 +16,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <StoreProvider>
           <Header />
           <main className="mx-auto max-w-4xl px-4 py-8">{children}</main>
+          <Toaster />
         </StoreProvider>
       </body>
     </html>

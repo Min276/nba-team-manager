@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { Button } from "@/components/ui/Button";
-import { playerRemoved, type Team } from "@/features/teams/teamsSlice";
-import { useAppDispatch } from "@/lib/hooks";
+import type { Team } from "@/features/teams/teamsSlice";
+import { useRemovePlayer } from "@/features/teams/useRemovePlayer";
 import type { Player } from "./types";
 
 interface PlayerRowProps {
@@ -17,7 +17,7 @@ const rowClass =
   "flex items-center gap-4 px-4 py-3 [content-visibility:auto] [contain-intrinsic-size:auto_64px]";
 
 export const PlayerRow = memo(function PlayerRow({ player, team, onAssign }: PlayerRowProps) {
-  const dispatch = useAppDispatch();
+  const removePlayer = useRemovePlayer();
 
   return (
     <li className={rowClass}>
@@ -45,7 +45,7 @@ export const PlayerRow = memo(function PlayerRow({ player, team, onAssign }: Pla
             variant="ghost"
             size="sm"
             aria-label={`Remove ${player.firstName} ${player.lastName} from ${team.name}`}
-            onClick={() => dispatch(playerRemoved({ teamId: team.id, playerId: player.id }))}
+            onClick={() => removePlayer(team, player)}
           >
             Remove
           </Button>

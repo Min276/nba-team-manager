@@ -4,6 +4,8 @@ import { useState, type ChangeEvent, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Field";
 import { Modal } from "@/components/ui/Modal";
+import { PlayerPicker } from "@/features/players/PlayerPicker";
+import type { Player } from "@/features/players/types";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { REGIONS, selectAllTeams, teamAdded, teamUpdated, type Team } from "./teamsSlice";
 import {
@@ -30,6 +32,8 @@ export function TeamFormModal({ team, onClose }: TeamFormModalProps) {
     team ? toFormValues(team) : emptyTeamForm,
   );
   const [errors, setErrors] = useState<TeamFormErrors>({});
+  const [selected, setSelected] = useState<Player[]>(() => team?.players ?? []);
+  const capacity = Number(values.playerCount);
 
   const update =
     (field: keyof TeamFormValues) => (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -40,11 +44,15 @@ export function TeamFormModal({ team, onClose }: TeamFormModalProps) {
 
   const onSubmit = (event: FormEvent) => {
     event.preventDefault();
-    const nextErrors = validateTeamForm(values, teams, team);
+    const nextErrors = validateTeamForm(values, teams, team, selected.length);
     if (Object.values(nextErrors).some(Boolean)) return setErrors(nextErrors);
 
     const input = toTeamInput(values);
-    dispatch(team ? teamUpdated({ id: team.id, changes: input }) : teamAdded(input));
+    dispatch(
+      team
+        ? teamUpdated({ id: team.id, changes: input, players: selected })
+        : teamAdded(input, selected),
+    );
     onClose();
   };
 
@@ -89,6 +97,16 @@ export function TeamFormModal({ team, onClose }: TeamFormModalProps) {
           value={values.country}
           error={errors.country}
           onChange={update("country")}
+        />
+        <PlayerPicker
+          selected={selected}
+          onChange={(players) => {
+            setSelected(players);
+            setErrors((prev) => ({ ...prev, players: undefined }));
+          }}
+          error={errors.players}
+          capacity={Number.isInteger(capacity) && capacity > 0 ? capacity : Infinity}
+          teamId={team?.id}
         />
         <div className="flex justify-end gap-2 pt-2">
           <Button variant="secondary" onClick={onClose}>
