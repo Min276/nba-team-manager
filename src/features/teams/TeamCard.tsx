@@ -18,7 +18,7 @@ export const TeamCard = memo(function TeamCard({ team, onEdit, onDelete }: TeamC
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <h2 className="truncate font-semibold text-gray-900">{team.name}</h2>
-          <p className="text-sm text-gray-500">
+          <p className="truncate text-sm text-gray-500">
             {team.region} · {team.country}
           </p>
         </div>
@@ -47,6 +47,19 @@ export const TeamCard = memo(function TeamCard({ team, onEdit, onDelete }: TeamC
           {team.players.length} / {team.playerCount}
         </span>
       </p>
+      <div
+        role="progressbar"
+        aria-label="Roster fill"
+        aria-valuemin={0}
+        aria-valuemax={team.playerCount}
+        aria-valuenow={team.players.length}
+        className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-gray-100"
+      >
+        <div
+          className="h-full rounded-full bg-indigo-500 transition-[width]"
+          style={{ width: `${Math.min(100, (team.players.length / team.playerCount) * 100)}%` }}
+        />
+      </div>
       {team.players.length === 0 ? (
         <p className="mt-2 text-sm text-gray-500">
           No players yet —{" "}
@@ -56,7 +69,7 @@ export const TeamCard = memo(function TeamCard({ team, onEdit, onDelete }: TeamC
           .
         </p>
       ) : (
-        <ul className="mt-2 divide-y divide-gray-100 rounded-lg border border-gray-100">
+        <ul className="mt-3 max-h-56 divide-y divide-gray-100 overflow-y-auto rounded-lg border border-gray-100">
           {team.players.map((player) => (
             <li key={player.id} className="flex items-center gap-3 px-3 py-2 text-sm">
               <span className="min-w-0 flex-1 truncate">

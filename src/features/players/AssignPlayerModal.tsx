@@ -31,7 +31,7 @@ export function AssignPlayerModal({ player, onClose }: AssignPlayerModalProps) {
           first.
         </p>
       ) : (
-        <ul className="divide-y divide-gray-100 overflow-hidden rounded-lg border border-gray-200">
+        <ul className="max-h-72 divide-y divide-gray-100 overflow-y-auto rounded-lg border border-gray-200">
           {teams.map((team) => {
             const full = team.players.length >= team.playerCount;
             return (
