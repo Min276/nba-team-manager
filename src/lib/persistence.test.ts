@@ -30,7 +30,7 @@ describe("persistence", () => {
     );
 
     const written = JSON.parse(storage.get(STORAGE_KEY)!);
-    expect(Object.keys(written).sort()).toEqual(["auth", "teams"]);
+    expect(Object.keys(written).sort()).toEqual(["auth", "preferences", "teams"]);
 
     const fresh = makeStore();
     expect(selectHydrated(fresh.getState())).toBe(false);

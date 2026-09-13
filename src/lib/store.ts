@@ -1,6 +1,7 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { authReducer } from "@/features/auth/authSlice";
 import { playersApi } from "@/features/players/playersApi";
+import { preferencesReducer } from "@/features/preferences/preferencesSlice";
 import { teamsReducer } from "@/features/teams/teamsSlice";
 import { hydratedReducer } from "./persistence";
 
@@ -8,6 +9,7 @@ const rootReducer = combineReducers({
   hydrated: hydratedReducer,
   auth: authReducer,
   teams: teamsReducer,
+  preferences: preferencesReducer,
   [playersApi.reducerPath]: playersApi.reducer,
 });
 
