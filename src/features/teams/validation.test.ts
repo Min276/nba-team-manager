@@ -70,6 +70,12 @@ describe("validateTeamForm", () => {
     expect(validateTeamForm({ ...valid, playerCount: "4" }, [], undefined, 4)).toEqual({});
   });
 
+  it("requires the country to be a name", () => {
+    expect(validateTeamForm({ ...valid, country: "99" }, []).country).toMatch(/must be a name/);
+    expect(validateTeamForm({ ...valid, country: "Côte d’Ivoire" }, [])).toEqual({});
+    expect(validateTeamForm({ ...valid, country: "St. Kitts-Nevis" }, [])).toEqual({});
+  });
+
   it("rejects unknown regions", () => {
     expect(validateTeamForm({ ...valid, region: "Mars" }, []).region).toBeDefined();
   });

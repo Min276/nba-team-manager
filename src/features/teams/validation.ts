@@ -36,6 +36,9 @@ export const toTeamInput = (values: TeamFormValues): TeamInput => ({
 
 const isRegion = (value: string): value is Region => (REGIONS as readonly string[]).includes(value);
 
+// Letters (any script) with the spaces and punctuation real country names use.
+const COUNTRY_PATTERN = /^\p{L}[\p{L}\s.'’-]*$/u;
+
 export function validateTeamForm(
   values: TeamFormValues,
   teams: Team[],
@@ -68,6 +71,8 @@ export function validateTeamForm(
   if (!country) errors.country = "Country is required.";
   else if (country.length > COUNTRY_MAX) {
     errors.country = `Country must be at most ${COUNTRY_MAX} characters.`;
+  } else if (!COUNTRY_PATTERN.test(country)) {
+    errors.country = "Country must be a name, e.g. Spain or Côte d’Ivoire.";
   }
 
   return errors;
