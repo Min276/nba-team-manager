@@ -93,6 +93,41 @@ describe("teams slice", () => {
     expect(selectAllTeams(store.getState())[0].playerCount).toBe(2);
   });
 
+  it("creates a team with a roster, skipping players on other teams and capping at the count", () => {
+    const { store, tigersTeam } = setup();
+    store.dispatch(playerAdded({ teamId: tigersTeam.id, player: player(1) }));
+
+    store.dispatch(
+      teamAdded({ ...dragons, name: "Lions", playerCount: 2 }, [
+        player(1),
+        player(2),
+        player(2),
+        player(3),
+        player(4),
+      ]),
+    );
+    const lions = selectAllTeams(store.getState()).find((team) => team.name === "Lions");
+    expect(lions?.players.map((p) => p.id)).toEqual([2, 3]);
+    expect(selectTeamByPlayerId(store.getState()).get(1)?.id).toBe(tigersTeam.id);
+  });
+
+  it("replaces the roster on update under the same rules", () => {
+    const { store, dragonsTeam, tigersTeam } = setup();
+    store.dispatch(playerAdded({ teamId: dragonsTeam.id, player: player(1) }));
+    store.dispatch(playerAdded({ teamId: tigersTeam.id, player: player(9) }));
+
+    store.dispatch(
+      teamUpdated({
+        id: dragonsTeam.id,
+        changes: { ...dragons, playerCount: 3 },
+        players: [player(9), player(5), player(1), player(6), player(7)],
+      }),
+    );
+    const updated = selectAllTeams(store.getState())[0];
+    expect(updated.playerCount).toBe(3);
+    expect(updated.players.map((p) => p.id)).toEqual([5, 1, 6]);
+  });
+
   it("restores persisted teams on hydrate", () => {
     const { store, dragonsTeam } = setup();
     store.dispatch(playerAdded({ teamId: dragonsTeam.id, player: player(1) }));

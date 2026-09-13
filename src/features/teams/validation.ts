@@ -40,6 +40,7 @@ export function validateTeamForm(
   values: TeamFormValues,
   teams: Team[],
   editing?: Team,
+  rosterSize = editing?.players.length ?? 0,
 ): TeamFormErrors {
   const errors: TeamFormErrors = {};
 
@@ -57,8 +58,8 @@ export function validateTeamForm(
     errors.playerCount = "Player count must be a whole number.";
   } else if (playerCount < 1 || playerCount > PLAYER_COUNT_MAX) {
     errors.playerCount = `Player count must be between 1 and ${PLAYER_COUNT_MAX}.`;
-  } else if (editing && playerCount < editing.players.length) {
-    errors.playerCount = `This team already has ${editing.players.length} players.`;
+  } else if (playerCount < rosterSize) {
+    errors.playerCount = `Player count can't be less than the ${rosterSize} players selected.`;
   }
 
   if (!isRegion(values.region)) errors.region = "Please select a region.";

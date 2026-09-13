@@ -58,9 +58,16 @@ describe("validateTeamForm", () => {
     }));
     const team = { ...existing, players: roster };
     expect(validateTeamForm({ ...valid, playerCount: "2" }, [team], team).playerCount).toMatch(
-      /already has 3/,
+      /3 players selected/,
     );
     expect(validateTeamForm({ ...valid, playerCount: "3" }, [team], team)).toEqual({});
+  });
+
+  it("uses the number of players selected in the form when given", () => {
+    expect(validateTeamForm({ ...valid, playerCount: "2" }, [], undefined, 4).playerCount).toMatch(
+      /4 players selected/,
+    );
+    expect(validateTeamForm({ ...valid, playerCount: "4" }, [], undefined, 4)).toEqual({});
   });
 
   it("rejects unknown regions", () => {
